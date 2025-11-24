@@ -8,7 +8,9 @@
 using namespace std;
 
 int git_init();
-int git_add(char* path);
+int git_hash_object(char* path);
+int git_commit();
+int git_cat_file(char* flag, char* sha);
 
 int main(int argc, char **argv)
 {
@@ -25,16 +27,19 @@ int main(int argc, char **argv)
     {
         return git_init();
     }
-    else if (command == "store")
+    else if (command == "hash-object")
     {
         //this is not an actual command (or even if it is, it doesn't do that)
         //this thing only stores the files as git objects in the .git/objects folder
-        if (command == "store") {
+        if (command == "hash-object") {
             for (int i = 2; i < argc; i++) {
-                git_add(argv[i]);
+                git_hash_object(argv[i]);
             }
         }
-
+    }
+    else if (command == "cat-file")
+    {
+        return git_cat_file(argv[2], argv[3]);
     }
     else
     {
@@ -62,7 +67,7 @@ int git_init()
 
 }
 
-int git_store(char* path)
+int git_hash_object(char* path)
 {
     if (!filesystem::exists(path))
     {
@@ -103,4 +108,27 @@ int git_store(char* path)
 
     cout << "Added file " << path << " as blob " << sha1hex << endl;
     return EXIT_SUCCESS;
+}
+
+int git_commit()
+{
+    // Placeholder for future implementation
+    return EXIT_SUCCESS;
+}
+
+int git_cat_file(char* flag, char* sha)
+{
+    if (flag != string("-p"))
+    {
+        cerr << "Error: Unsupported flag " << flag << endl;
+        return EXIT_FAILURE;
+    }
+    string dir = "./.git/objects/" + string(sha).substr(0, 2);
+    string file = dir + "/" + string(sha).substr(2);
+    if (!filesystem::exists(file))
+    {
+        cerr << "Error: Object " << sha << " does not exist." << endl;
+        return EXIT_FAILURE;
+    }
+    //wip: add decompression here
 }
