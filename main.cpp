@@ -124,11 +124,24 @@ int git_cat_file(char* flag, char* sha)
         return EXIT_FAILURE;
     }
     string dir = "./.git/objects/" + string(sha).substr(0, 2);
-    string file = dir + "/" + string(sha).substr(2);
-    if (!filesystem::exists(file))
+    string obj = dir + "/" + string(sha).substr(2);
+    if (!filesystem::exists(obj))
     {
         cerr << "Error: Object " << sha << " does not exist." << endl;
         return EXIT_FAILURE;
     }
-    //wip: add decompression here
+
+    zstr::ifstream file(obj);
+    std::string decompressed_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+    size_t null_pos = decompressed_content.find('\0');
+    if (null_pos == string::npos)
+    {
+        cerr << "Error: Invalid object format." << endl;
+        return EXIT_FAILURE;
+    }
+    string content = decompressed_content.substr(null_pos + 1);
+    cout << content << endl;
+
+    return EXIT_SUCCESS;
 }
